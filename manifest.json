@@ -1,10 +1,21 @@
 {
   "manifest_version": 3,
-  "name": "출판사 필터 (Clean Books)",
-  "version": "1.1",
+  "name": "CleanBook - 출판사 필터",
+  "description": "교보문고와 알라딘에서 원치 않는 출판사 및 저자의 책을 차단합니다.",
+  "version": "1.2",
   "permissions": ["storage"],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
   "content_scripts": [
     {
