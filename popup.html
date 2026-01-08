@@ -2,22 +2,107 @@
 <html>
 <head>
     <meta charset="utf-8">
-  <style>
-    body { width: 250px; padding: 10px; font-family: sans-serif; }
-    input { width: 70%; }
-    button { width: 25%; }
-    ul { list-style: none; padding: 0; }
-    li { background: #eee; margin: 2px 0; padding: 5px; display: flex; justify-content: space-between; }
-    span.del { color: red; cursor: pointer; font-weight: bold; }
-  </style>
+    <style>
+        body { 
+            width: 280px; padding: 15px; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f9f9f9; margin: 0;
+        }
+        
+        h3 { 
+            margin-top: 0; color: #333; font-size: 16px; text-align: center;
+            border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; margin-bottom: 15px;
+        }
+
+        .input-group { display: flex; gap: 5px; margin-bottom: 10px; }
+        input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; outline: none; }
+        input:focus { border-color: #474c98; }
+        
+        button#addBtn { 
+            padding: 8px 15px; background-color: #474c98; color: white; border: none; 
+            border-radius: 4px; cursor: pointer; font-weight: bold; transition: background 0.2s;
+        }
+        button#addBtn:hover { background-color: #3b3f80; }
+        
+        #searchInput {
+            width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 6px 10px;
+            border: 1px solid #ddd; border-radius: 20px; font-size: 12px; background-color: #f1f1f1;
+        }
+        #searchInput:focus { background-color: white; border-color: #ccc; }
+
+        ul { 
+            list-style: none; padding: 0; margin: 0; max-height: 200px; 
+            overflow-y: auto; border-top: 1px solid #eee;
+        }
+        li { 
+            background: white; margin-top: 5px; padding: 8px 10px; border-radius: 4px; 
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); font-size: 13px;
+        }
+        span.del { color: #ff6b6b; cursor: pointer; font-weight: bold; padding: 0 5px; }
+        span.del:hover { color: #e03131; }
+
+        .footer {
+            margin-top: 20px; padding-top: 10px; border-top: 1px solid #ddd;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+        }
+        
+        /* [NEW] 버튼 줄바꿈을 위한 행(Row) 스타일 */
+        .footer-row {
+            display: flex; gap: 10px; width: 100%; justify-content: center;
+        }
+
+        .link-btn {
+            cursor: pointer; text-decoration: none; color: #555; display: flex; 
+            align-items: center; justify-content: center; gap: 5px; 
+            padding: 6px 12px; border-radius: 5px; background: #eee; 
+            transition: all 0.2s; border: none; font-size: 12px; flex: 1; /* 버튼 너비 균등 */
+        }
+        .link-btn:hover { background: #e0e0e0; color: #333; }
+        
+        #qrContainer {
+            display: none; text-align: center; margin-top: 5px; animation: fadeIn 0.3s ease-in-out;
+        }
+        #qrImage {
+            width: 150px; height: 150px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
-  <h3>🚫 출판사 차단 설정</h3>
-  <div>
+  <h3>📚 CleanBook 설정</h3>
+  
+  <div class="input-group">
     <input type="text" id="publisherInput" placeholder="출판사명 입력">
     <button id="addBtn">추가</button>
   </div>
+
+  <input type="text" id="searchInput" placeholder="🔍 목록에서 검색...">
+
   <ul id="blockList"></ul>
+
+  <div class="footer">
+    <div class="footer-row">
+        <button id="exportBtn" class="link-btn" title="목록을 파일로 저장">💾 백업</button>
+        <button id="importBtn" class="link-btn" title="파일에서 목록 불러오기">📂 복구</button>
+        <input type="file" id="importInput" style="display: none;" accept=".json">
+    </div>
+
+    <div class="footer-row">
+        <a id="githubLink" class="link-btn">💻 GitHub</a>
+        <a id="donateToggleBtn" class="link-btn">☕ 후원하기</a>
+    </div>
+
+    <div id="qrContainer">
+        <img id="qrImage" src="icons/qr.png" alt="송금 QR코드">
+        <div style="font-size: 11px; color: #888; margin-top: 5px;">카메라로 스캔해주세요!</div>
+    </div>
+  </div>
+
   <script src="popup.js"></script>
 </body>
 </html>
