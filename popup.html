@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+  <style>
+    body { width: 250px; padding: 10px; font-family: sans-serif; }
+    input { width: 70%; }
+    button { width: 25%; }
+    ul { list-style: none; padding: 0; }
+    li { background: #eee; margin: 2px 0; padding: 5px; display: flex; justify-content: space-between; }
+    span.del { color: red; cursor: pointer; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h3>🚫 출판사 차단 설정</h3>
+  <div>
+    <input type="text" id="publisherInput" placeholder="출판사명 입력">
+    <button id="addBtn">추가</button>
+  </div>
+  <ul id="blockList"></ul>
+  <script src="popup.js"></script>
+</body>
+</html>

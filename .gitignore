@@ -1,0 +1,18 @@
+# Windows system files (윈도우 찌꺼기 파일)
+Thumbs.db
+thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Mac OS system files (나중을 위해 미리 넣어두기)
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor config
+.vscode/
+.idea/
+
+# Node modules
+node_modules/
+package-lock.json

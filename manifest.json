@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "출판사 필터 (Clean Books)",
+  "version": "1.1",
+  "permissions": ["storage"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.kyobobook.co.kr/*", "*://*.aladin.co.kr/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
