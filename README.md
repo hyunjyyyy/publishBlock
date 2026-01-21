@@ -32,7 +32,7 @@
 이 프로젝트는 개인 학습 및 포트폴리오 목적으로 개발되었습니다.
 
 * **Icons:** Free icons from [Streamline](https://streamlinehq.com)
-* **Developer:** [본인 이름/ID]
+* **Developer:** Hyunji Yu
 
 ---
 Copyright © 2026 CleanBook. All rights reserved.
