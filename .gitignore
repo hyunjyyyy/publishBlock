@@ -16,3 +16,6 @@ $RECYCLE.BIN/
 # Node modules
 node_modules/
 package-lock.json
+
+# 배포파일
+dist/
