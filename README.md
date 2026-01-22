@@ -2,6 +2,8 @@
 
 **CleanBook**은 온라인 서점(교보문고, 알라딘, **Yes24**)에서 원치 않는 출판사나 저자의 책을 검색 결과와 베스트셀러 리스트에서 시각적으로 차단해주는 Chrome 확장 프로그램입니다.
 
+바로가기: https://chromewebstore.google.com/detail/aimjhnflkobjkaiahlaidmpailejaoki?utm_source=item-share-cb
+
 ## 📌 주요 기능
 
 * **국내 3대 서점 완벽 지원:**
