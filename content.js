@@ -1,25 +1,28 @@
-// content.js
-const IS_DEBUG = false; // 차단이 안 될 때는 true로 켜서 콘솔을 확인하세요!
+// content.js - [v1.4.2] Yes24 오차단 완벽 방지 (제목 간섭 제거)
+
+const IS_DEBUG = false; 
 
 const log = (...args) => {
     if (IS_DEBUG) console.log(...args);
 };
 
-log("[CleanBook] 확장 프로그램 로드됨");
+log("[CleanBook] v1.4.2 로드됨");
 
 const SITE_CONFIG = {
   kyobo: {
-    // [업데이트] eBook 전용 클래스 및 저자/출판사 영역 추가
     targetSelector: '.prod_publish, .prod_author, .publish, .author, .prod_info, .prodDt_info, .prodDt_detail span',
     color: '#474c98'
   },
   aladin: {
     itemSelector: '.ss_book_box, .v2_box_list, .ss_book_list > li',
-    publisherLinkSelector: 'a[href*="PublisherSearch"], a[href*="AuthorSearch"]',
+    targetSelector: 'a[href*="PublisherSearch"], a[href*="AuthorSearch"]',
     color: '#eb3b94'
   },
   yes24: {
-    targetSelector: '.goods_pub, .goods_auth, .goods_company, .goods_info, .info_pub, .authPub, .info_auth, .info_name',
+    // [FIX] 사용자 제보 구조 반영: 제목/소개글 등 불순물 클래스 전면 삭제
+    // 오직 <span class="authPub info_auth"> 와 <span class="authPub info_pub"> 만 잡습니다.
+    // (.goods_auth, .goods_pub은 타일형 뷰 호환성을 위해 남김 - 제목은 포함 안 함)
+    targetSelector: '.info_auth, .info_pub, .goods_auth, .goods_pub, .authPub a',
     color: '#0089FF'
   }
 };
@@ -35,10 +38,10 @@ if (hostname.includes('kyobobook.co.kr')) {
 }
 
 // ========================================================
-// 1. 교보문고 (Kyobo) - Bottom-Up 방식으로 전면 개편
+// 1. 교보문고 (Kyobo)
 // ========================================================
 function kyoboInit() {
-    log("[CleanBook] 교보문고 모듈 시작 (Bottom-Up)");
+    log("[CleanBook] 교보문고 모듈 시작");
     const observer = new MutationObserver(() => runKyobo());
     runKyobo();
     if (document.body) observer.observe(document.body, { childList: true, subtree: true });
@@ -68,17 +71,15 @@ function kyoboBlock(blockedList) {
         });
 
         if (matchedKeyword) {
-            // [핵심] 범인(target)으로부터 "책 한 권" 덩어리를 거슬러 올라가 찾습니다.
-            // 일반 도서(li, .prod_item)와 eBook(.prod_area, .prodDt_detail의 부모 등)을 모두 대응
             const container = target.closest('.prod_item') || 
                               target.closest('.prod_row') || 
                               target.closest('.prod_area') || 
                               target.closest('li') ||
-                              target.closest('.prodDt_detail'); // eBook 상세 대응
+                              target.closest('.prodDt_detail'); 
 
             if (container) {
-                log(`🚫 [Kyobo] 차단됨: "${matchedKeyword}" (대상: ${text})`);
-                blockItem(container, matchedKeyword, SITE_CONFIG.kyobo.color);
+                const finalContainer = container.classList.contains('prodDt_detail') ? container.parentElement : container;
+                blockItem(finalContainer, matchedKeyword, SITE_CONFIG.kyobo.color);
             }
         }
         target.dataset.checked = "true";
@@ -86,7 +87,7 @@ function kyoboBlock(blockedList) {
 }
 
 // ========================================================
-// 2. 알라딘 (Aladin) - 기존 로직 유지
+// 2. 알라딘 (Aladin)
 // ========================================================
 function aladinInit() {
     log("[CleanBook] 알라딘 모듈 시작");
@@ -98,27 +99,44 @@ function aladinInit() {
 function runAladin() {
     chrome.storage.sync.get(['blockedPublishers'], (result) => {
         const blockedList = result.blockedPublishers || [];
-        if (blockedList.length > 0) aladinUniversalBlock(blockedList);
+        if (blockedList.length > 0) aladinBlock(blockedList);
     });
 }
 
-function aladinUniversalBlock(blockedList) {
-    const items = document.querySelectorAll(SITE_CONFIG.aladin.itemSelector);
-    items.forEach(item => {
-        if (item.dataset.filtered) return;
-        const publisherLink = item.querySelector(SITE_CONFIG.aladin.publisherLinkSelector);
-        if (publisherLink) {
-            checkAndBlock(item, publisherLink.innerText, blockedList, SITE_CONFIG.aladin.color, "Aladin");
+function aladinBlock(blockedList) {
+    const targets = document.querySelectorAll(SITE_CONFIG.aladin.targetSelector);
+
+    targets.forEach(target => {
+        if (target.dataset.checked) return;
+
+        const text = target.innerText.trim();
+        const cleanText = text.replace(/\s+/g, ' ').toLowerCase();
+
+        const matchedKeyword = blockedList.find(blocked => {
+            if (!blocked) return false;
+            const keyword = blocked.toLowerCase().trim();
+            return keyword.length >= 1 && cleanText.includes(keyword);
+        });
+
+        if (matchedKeyword) {
+            const container = target.closest('.ss_book_box') || 
+                              target.closest('.ss_book_list > li') || 
+                              target.closest('.v2_box_item') || 
+                              target.closest('div[id^="bg_"]'); 
+
+            if (container) {
+                blockItem(container, matchedKeyword, SITE_CONFIG.aladin.color);
+            }
         }
-        item.dataset.filtered = "true";
+        target.dataset.checked = "true";
     });
 }
 
 // ========================================================
-// 3. 예스24 (Yes24) - Bottom-Up 방식 유지
+// 3. 예스24 (Yes24) - 구조 변경 반영
 // ========================================================
 function yes24Init() {
-    log("[CleanBook] Yes24 모듈 시작 (Bottom-Up)");
+    log("[CleanBook] Yes24 모듈 시작");
     const observer = new MutationObserver(() => runYes24());
     runYes24(); 
     if (document.body) observer.observe(document.body, { childList: true, subtree: true });
@@ -146,9 +164,10 @@ function yes24Block(blockedList) {
         });
 
         if (matchedKeyword) {
+            // 범인(저자/출판사)을 찾았으니, 책 덩어리(Container)를 찾아 올라갑니다.
             const container = target.closest('li') || target.closest('tr') || target.closest('.goods_grp') || target.closest('div[class*="item"]');
+            
             if (container) {
-                log(`🚫 [Yes24] 차단됨: "${matchedKeyword}"`);
                 blockItem(container, matchedKeyword, SITE_CONFIG.yes24.color);
             }
         }
@@ -159,21 +178,6 @@ function yes24Block(blockedList) {
 // ========================================================
 // 공통 함수
 // ========================================================
-function checkAndBlock(item, text, blockedList, color, siteName) {
-    if (!text) return;
-    const cleanText = text.replace(/\s+/g, ' ').toLowerCase();
-    const matchedKeyword = blockedList.find(blocked => {
-        if (!blocked) return false;
-        const keyword = blocked.toLowerCase().trim();
-        return keyword.length >= 1 && cleanText.includes(keyword);
-    });
-
-    if (matchedKeyword) {
-        log(`🚫 [${siteName}] 차단됨: "${matchedKeyword}"`);
-        blockItem(item, matchedKeyword, color);
-    }
-    item.dataset.filtered = "true";
-}
 
 function blockItem(element, name, color) {
     if (element.querySelector('.cleanbook-overlay')) return;
