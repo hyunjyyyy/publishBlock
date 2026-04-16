@@ -3,6 +3,12 @@
   "name": "CleanBook - 출판사 필터",
   "description": "교보문고, 알라딘, YES24에서 원치 않는 출판사 및 저자의 책을 차단합니다.",
   "version": "1.4",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "cleanbook@hyunjyyyy",
+      "strict_min_version": "109.0"
+    }
+  },
   "permissions": ["storage"],
   "action": {
     "default_popup": "popup.html",
@@ -19,7 +25,11 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*.kyobobook.co.kr/*", "*://*.aladin.co.kr/*","*://*.yes24.com/*"],
+      "matches": [
+        "*://*.kyobobook.co.kr/*",
+        "*://*.aladin.co.kr/*",
+        "*://*.yes24.com/*"
+      ],
       "js": ["content.js"],
       "run_at": "document_end"
     }
