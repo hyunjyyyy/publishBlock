@@ -1,12 +1,14 @@
 // content.js - [v1.4.2] Yes24 오차단 완벽 방지 (제목 간섭 제거)
 
-const IS_DEBUG = false; 
+const IS_DEBUG = false;
 
 const log = (...args) => {
     if (IS_DEBUG) console.log(...args);
 };
 
 log("[CleanBook] v1.4.2 로드됨");
+
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
 
 const SITE_CONFIG = {
   kyobo: {
@@ -48,7 +50,7 @@ function kyoboInit() {
 }
 
 function runKyobo() {
-    chrome.storage.sync.get(['blockedPublishers'], (result) => {
+    browserAPI.storage.sync.get(['blockedPublishers'], (result) => {
         const blockedList = result.blockedPublishers || [];
         if (blockedList.length > 0) kyoboBlock(blockedList);
     });
@@ -56,7 +58,7 @@ function runKyobo() {
 
 function kyoboBlock(blockedList) {
     const targets = document.querySelectorAll(SITE_CONFIG.kyobo.targetSelector);
-    
+
     targets.forEach(target => {
         if (target.dataset.checked) return;
 
@@ -71,11 +73,11 @@ function kyoboBlock(blockedList) {
         });
 
         if (matchedKeyword) {
-            const container = target.closest('.prod_item') || 
-                              target.closest('.prod_row') || 
-                              target.closest('.prod_area') || 
+            const container = target.closest('.prod_item') ||
+                              target.closest('.prod_row') ||
+                              target.closest('.prod_area') ||
                               target.closest('li') ||
-                              target.closest('.prodDt_detail'); 
+                              target.closest('.prodDt_detail');
 
             if (container) {
                 const finalContainer = container.classList.contains('prodDt_detail') ? container.parentElement : container;
@@ -97,7 +99,7 @@ function aladinInit() {
 }
 
 function runAladin() {
-    chrome.storage.sync.get(['blockedPublishers'], (result) => {
+    browserAPI.storage.sync.get(['blockedPublishers'], (result) => {
         const blockedList = result.blockedPublishers || [];
         if (blockedList.length > 0) aladinBlock(blockedList);
     });
@@ -119,10 +121,10 @@ function aladinBlock(blockedList) {
         });
 
         if (matchedKeyword) {
-            const container = target.closest('.ss_book_box') || 
-                              target.closest('.ss_book_list > li') || 
-                              target.closest('.v2_box_item') || 
-                              target.closest('div[id^="bg_"]'); 
+            const container = target.closest('.ss_book_box') ||
+                              target.closest('.ss_book_list > li') ||
+                              target.closest('.v2_box_item') ||
+                              target.closest('div[id^="bg_"]');
 
             if (container) {
                 blockItem(container, matchedKeyword, SITE_CONFIG.aladin.color);
@@ -138,12 +140,12 @@ function aladinBlock(blockedList) {
 function yes24Init() {
     log("[CleanBook] Yes24 모듈 시작");
     const observer = new MutationObserver(() => runYes24());
-    runYes24(); 
+    runYes24();
     if (document.body) observer.observe(document.body, { childList: true, subtree: true });
 }
 
 function runYes24() {
-    chrome.storage.sync.get(['blockedPublishers'], (result) => {
+    browserAPI.storage.sync.get(['blockedPublishers'], (result) => {
         const blockedList = result.blockedPublishers || [];
         if (blockedList.length > 0) yes24Block(blockedList);
     });
@@ -151,7 +153,7 @@ function runYes24() {
 
 function yes24Block(blockedList) {
     const targets = document.querySelectorAll(SITE_CONFIG.yes24.targetSelector);
-    
+
     targets.forEach(target => {
         if (target.dataset.checked) return;
 
@@ -166,7 +168,7 @@ function yes24Block(blockedList) {
         if (matchedKeyword) {
             // 범인(저자/출판사)을 찾았으니, 책 덩어리(Container)를 찾아 올라갑니다.
             const container = target.closest('li') || target.closest('tr') || target.closest('.goods_grp') || target.closest('div[class*="item"]');
-            
+
             if (container) {
                 blockItem(container, matchedKeyword, SITE_CONFIG.yes24.color);
             }
@@ -181,9 +183,9 @@ function yes24Block(blockedList) {
 
 function blockItem(element, name, color) {
     if (element.querySelector('.cleanbook-overlay')) return;
-    
+
     if (element.tagName.toLowerCase() === 'tr') {
-        element.style.transform = 'scale(1)'; 
+        element.style.transform = 'scale(1)';
     } else {
         const style = window.getComputedStyle(element);
         if (style.position === 'static') {
@@ -197,16 +199,16 @@ function blockItem(element, name, color) {
 
     overlay.innerHTML = `
       <div style="
-        background:white; 
-        border:2px solid ${finalColor}; 
-        padding:10px; 
-        border-radius:6px; 
-        text-align:center; 
-        font-weight:bold; 
-        color:#333; 
-        font-size: 13px; 
-        width:90%; 
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+        background:white;
+        border:2px solid ${finalColor};
+        padding:10px;
+        border-radius:6px;
+        text-align:center;
+        font-weight:bold;
+        color:#333;
+        font-size: 13px;
+        width:90%;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         z-index: 1001;
         white-space: normal !important;
         line-height: 1.5 !important;
@@ -216,7 +218,7 @@ function blockItem(element, name, color) {
         <span style="font-size:11px; color:#999; font-weight:normal;">클릭하여 보기</span>
       </div>
     `;
-    
+
     overlay.style.position = 'absolute';
     overlay.style.top = '0';
     overlay.style.left = '0';
